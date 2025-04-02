@@ -1,6 +1,6 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 
-// Types pour les filtres
 export interface MovieFilters {
   year?: number | null;
   genre?: number | null;
@@ -21,10 +21,8 @@ export default function FilterBar({ onFilter, genres }: FilterBarProps) {
     sortBy: 'popularity.desc'
   });
 
-  // Générer une liste d'années de 2025 à 1900
   const years = Array.from({ length: 126 }, (_, i) => 2025 - i);
   
-  // Options de tri
   const sortOptions = [
     { value: 'popularity.desc', label: 'Popularité ↓' },
     { value: 'popularity.asc', label: 'Popularité ↑' },
@@ -34,18 +32,15 @@ export default function FilterBar({ onFilter, genres }: FilterBarProps) {
     { value: 'release_date.asc', label: 'Date de sortie ↑' },
   ];
 
-  // Gestion des changements de filtres
   const handleFilterChange = (field: keyof MovieFilters, value: any) => {
     const newValue = value === '' ? null : field === 'genre' || field === 'year' || field === 'minRating' ? Number(value) : value;
     setFilters({ ...filters, [field]: newValue });
   };
 
-  // Appliquer les filtres
   const applyFilters = () => {
     onFilter(filters);
   };
 
-  // Réinitialiser les filtres
   const resetFilters = () => {
     const resetFilters = {
       year: null,
@@ -58,17 +53,22 @@ export default function FilterBar({ onFilter, genres }: FilterBarProps) {
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-      <h2 className="text-lg font-semibold mb-4 text-black">Filtrer les films</h2>
+    <motion.div 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="bg-white p-6 rounded-xl shadow-lg mb-8"
+    >
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Filtrer les films</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {/* Filtre par genre */}
-        <div>
+        <motion.div whileHover={{ scale: 1.02 }}>
           <label className="block text-sm font-medium text-gray-700 mb-1">Genre</label>
           <select
             value={filters.genre || ''}
             onChange={(e) => handleFilterChange('genre', e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2 text-gray-400"
+            className="w-full rounded-lg border border-gray-300 p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           >
             <option value="">Tous les genres</option>
             {genres.map((genre) => (
@@ -77,15 +77,15 @@ export default function FilterBar({ onFilter, genres }: FilterBarProps) {
               </option>
             ))}
           </select>
-        </div>
+        </motion.div>
         
         {/* Filtre par année */}
-        <div>
+        <motion.div whileHover={{ scale: 1.02 }}>
           <label className="block text-sm font-medium text-gray-700 mb-1">Année</label>
           <select
             value={filters.year || ''}
             onChange={(e) => handleFilterChange('year', e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2 text-gray-400"
+            className="w-full rounded-lg border border-gray-300 p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           >
             <option value="">Toutes les années</option>
             {years.map((year) => (
@@ -94,15 +94,15 @@ export default function FilterBar({ onFilter, genres }: FilterBarProps) {
               </option>
             ))}
           </select>
-        </div>
+        </motion.div>
         
         {/* Filtre par note minimale */}
-        <div>
+        <motion.div whileHover={{ scale: 1.02 }}>
           <label className="block text-sm font-medium text-gray-700 mb-1">Note minimale</label>
           <select
             value={filters.minRating || ''}
             onChange={(e) => handleFilterChange('minRating', e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2 text-gray-400"
+            className="w-full rounded-lg border border-gray-300 p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           >
             <option value="">Toutes les notes</option>
             {[9, 8, 7, 6, 5, 4, 3, 2, 1].map((rating) => (
@@ -111,15 +111,15 @@ export default function FilterBar({ onFilter, genres }: FilterBarProps) {
               </option>
             ))}
           </select>
-        </div>
+        </motion.div>
         
         {/* Tri */}
-        <div>
+        <motion.div whileHover={{ scale: 1.02 }}>
           <label className="block text-sm font-medium text-gray-700 mb-1">Trier par</label>
           <select
             value={filters.sortBy || 'popularity.desc'}
             onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-            className="w-full rounded-md border border-gray-300 p-2 text-gray-400"
+            className="w-full rounded-lg border border-gray-300 p-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           >
             {sortOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -127,23 +127,27 @@ export default function FilterBar({ onFilter, genres }: FilterBarProps) {
               </option>
             ))}
           </select>
-        </div>
+        </motion.div>
       </div>
       
-      <div className="mt-4 flex justify-end space-x-2">
-        <button
+      <div className="mt-6 flex justify-end space-x-3">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={resetFilters}
-          className="px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 text-gray-400"
+          className="px-5 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 text-gray-600 transition-all"
         >
           Réinitialiser
-        </button>
-        <button
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={applyFilters}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+          className="px-5 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg text-sm hover:from-blue-700 hover:to-blue-600 transition-all shadow-md"
         >
           Appliquer
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }
