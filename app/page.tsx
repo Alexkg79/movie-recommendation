@@ -1,44 +1,117 @@
-"use client";
-import { useQuery } from "@tanstack/react-query";
-import { fetchTrendingMovies } from "@/lib/tmdb";
-import Link from "next/link";
+'use client';
+
+import { useState, useEffect } from 'react';
+import MovieCard from '../components/MovieCard';
+import SearchBar from '../components/SearchBar';
+import FilterBar, { MovieFilters } from '../components/FilterBar';
+import Pagination from '../components/Pagination';
+import { fetchGenres, fetchMoviesWithFilters } from '../lib/tmdb';
 
 export default function Home() {
-  const { data, error, isLoading } = useQuery({
-    queryKey: ["trendingMovies"],
-    queryFn: fetchTrendingMovies,
-  });
+  const [movies, setMovies] = useState<any[]>([]);
+  const [genres, setGenres] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [filters, setFilters] = useState<MovieFilters>({});
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  if (isLoading) return <p className="text-white p-8">Chargement...</p>;
-  if (error) return <p className="text-red-500 p-8">Erreur : {(error as Error).message}</p>;
+  // Charger les genres une seule fois au démarrage
+  useEffect(() => {
+    const loadGenres = async () => {
+      try {
+        const genresData = await fetchGenres();
+        setGenres(genresData);
+      } catch (err) {
+        console.error('Erreur lors du chargement des genres:', err);
+      }
+    };
+    
+    loadGenres();
+  }, []);
+
+  // Charger les films avec ou sans filtres
+  const loadMovies = async (
+    query: string = searchQuery, 
+    page: number = currentPage,
+    movieFilters: MovieFilters = filters
+  ) => {
+    setLoading(true);
+    try {
+      const data = await fetchMoviesWithFilters(query, page, movieFilters);
+      setMovies(data.results);
+      setTotalPages(data.total_pages > 500 ? 500 : data.total_pages); // TMDB limite à 500 pages
+      setError(null);
+    } catch (err) {
+      setError('Une erreur est survenue lors du chargement des films.');
+      setMovies([]);
+    } finally {
+      setLoading(false);
+      setIsInitialLoad(false);
+    }
+  };
+
+  // Premier chargement des films tendances
+  useEffect(() => {
+    if (isInitialLoad) {
+      loadMovies();
+    }
+  }, [isInitialLoad]);
+
+  // Gestion de la recherche
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+    loadMovies(query, 1, filters);
+  };
+
+  // Gestion du changement de page
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    loadMovies(searchQuery, page, filters);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Gestion des filtres
+  const handleFilter = (newFilters: MovieFilters) => {
+    setFilters(newFilters);
+    setCurrentPage(1);
+    loadMovies(searchQuery, 1, newFilters);
+  };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen p-5">
-      <h1 className="text-3xl font-bold mb-6 max-w-6xl mx-auto">🎬 Films Tendance</h1>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-        {data.results.map((movie: any) => (
-          <Link href={`/film/${movie.id}`} key={movie.id}>
-            <div className="bg-gray-800 p-4 rounded-lg transition-transform hover:scale-105 h-full flex flex-col">
-              {movie.poster_path ? (
-                <img 
-                  src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} 
-                  alt={movie.title} 
-                  className="w-full rounded-md"
-                />
-              ) : (
-                <div className="w-full h-48 bg-gray-700 rounded-md flex items-center justify-center">
-                  No Image
-                </div>
-              )}
-              <h2 className="text-lg font-semibold mt-3">{movie.title}</h2>
-              <div className="flex items-center mt-2">
-                <span className="text-yellow-500">★</span>
-                <span className="ml-1 text-sm">{movie.vote_average.toFixed(1)}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
-      </div>
-    </div>
+    <main className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-center mb-8">Recommandations de Films</h1>
+      
+      <SearchBar onSearch={handleSearch} />
+      
+      <FilterBar onFilter={handleFilter} genres={genres} />
+      
+      {loading ? (
+        <div className="flex justify-center my-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+        </div>
+      ) : error ? (
+        <div className="text-center text-red-500 p-4 my-8">{error}</div>
+      ) : movies.length === 0 ? (
+        <div className="text-center p-4 my-8">Aucun film trouvé</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {movies.map((movie) => (
+              <MovieCard key={movie.id} movie={movie} />
+            ))}
+          </div>
+          
+          <Pagination 
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </>
+      )}
+    </main>
   );
 }
