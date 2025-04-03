@@ -7,6 +7,7 @@ import SearchBar from '../components/SearchBar';
 import FilterBar, { MovieFilters } from '../components/FilterBar';
 import Pagination from '../components/Pagination';
 import { fetchGenres, fetchMoviesWithFilters } from '../lib/tmdb';
+import Header from '../components/Header';
 
 export default function Home() {
   const [movies, setMovies] = useState<any[]>([]);
@@ -93,90 +94,90 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 min-h-screen">
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Recommandations de Films
-        </h1>
-        
-        <SearchBar onSearch={handleSearch} />
-        
-        <FilterBar onFilter={handleFilter} genres={genres} />
-      </motion.div>
-
-      {loading ? (
-        <div className="flex justify-center my-12">
-          <motion.div
-            animate={{ 
-              rotate: 360,
-              scale: [1, 1.2, 1]
-            }}
-            transition={{ 
-              repeat: Infinity, 
-              duration: 1,
-              ease: "linear"
-            }}
-            className="rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
-          ></motion.div>
-        </div>
-      ) : error ? (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center p-6 bg-red-100 rounded-lg text-red-600 max-w-md mx-auto"
-        >
-          {error}
-        </motion.div>
-      ) : movies.length === 0 ? (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center p-6 bg-blue-50 rounded-lg text-blue-600 max-w-md mx-auto"
-        >
-          Aucun film trouvé
-        </motion.div>
-      ) : (
-        <>
+        <main className="container mx-auto px-4 py-8 min-h-screen">
           <motion.div 
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            <AnimatePresence>
-              {movies.map((movie) => (
-                <motion.div 
-                  key={movie.id}
-                  variants={item}
-                  whileHover={{ scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  className="movie-card"
-                >
-                  <MovieCard movie={movie} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            <h1 className="text-4xl font-bold text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Recommandations de Films
+            </h1>
+            
+            <SearchBar onSearch={handleSearch} />
+            
+            <FilterBar onFilter={handleFilter} genres={genres} />
           </motion.div>
-          
-          {totalPages > 1 && (
-            <motion.div
+
+          {loading ? (
+            <div className="flex justify-center my-12">
+              <motion.div
+                animate={{ 
+                  rotate: 360,
+                  scale: [1, 1.2, 1]
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 1,
+                  ease: "linear"
+                }}
+                className="rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"
+              ></motion.div>
+            </div>
+          ) : error ? (
+            <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
+              className="text-center p-6 bg-red-100 rounded-lg text-red-600 max-w-md mx-auto"
             >
-              <Pagination 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
+              {error}
             </motion.div>
+          ) : movies.length === 0 ? (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-center p-6 bg-blue-50 rounded-lg text-blue-600 max-w-md mx-auto"
+            >
+              Aucun film trouvé
+            </motion.div>
+          ) : (
+            <>
+              <motion.div 
+                variants={container}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              >
+                <AnimatePresence>
+                  {movies.map((movie) => (
+                    <motion.div 
+                      key={movie.id}
+                      variants={item}
+                      whileHover={{ scale: 1.03 }}
+                      transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                      className="movie-card"
+                    >
+                      <MovieCard movie={movie} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+              
+              {totalPages > 1 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <Pagination 
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                  />
+                </motion.div>
+              )}
+            </>
           )}
-        </>
-      )}
-    </main>
+        </main>
   );
 }

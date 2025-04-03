@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { FiHeart } from 'react-icons/fi';
 import { fetchMovieDetails, fetchMovieCredits, fetchSimilarMovies, fetchMovieVideos } from '../../../lib/tmdb';
+import useFavorites from '../../../hooks/useFavorites';
 
 interface MovieDetailsPageProps {
   params: {
@@ -21,6 +23,9 @@ export default function MovieDetail({ params }: MovieDetailsPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
+  const { toggleFavorite, isFavorite } = useFavorites();
+  
+  const movieId = parseInt(id);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -104,9 +109,22 @@ export default function MovieDetail({ params }: MovieDetailsPageProps) {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 py-8 relative"
     >
+     {/* Bouton Favoris en haut à droite */}
+     <motion.button
+        onClick={() => toggleFavorite(movieId)}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        className="absolute top-4 right-4 z-50 p-3 bg-gray-800/80 rounded-full backdrop-blur-sm shadow-lg hover:bg-red-500/80 transition-colors"
+        aria-label={isFavorite(movieId) ? "Retirer des favoris" : "Ajouter aux favoris"}
+      >
+        <FiHeart 
+          className={`h-6 w-6 ${isFavorite(movieId) ? 'fill-red-500 text-red-500' : 'text-gray-300'}`}
+        />
+      </motion.button>
+
       <Link 
+        className="inline-flex items-center mb-6 text-blue-400 hover:text-blue-300 transition-colors"
         href="/" 
-        className="inline-flex items-center mb-6 text-blue-500 hover:text-blue-700 transition-colors"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
           <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />

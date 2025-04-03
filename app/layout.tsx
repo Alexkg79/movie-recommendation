@@ -1,5 +1,6 @@
 import Providers from "./providers";
 import "./globals.css";
+import Header from "../components/Header";
 
 export const metadata = {
   title: "CineReco - Recommandations de films",
@@ -16,15 +17,9 @@ export default function RootLayout({
       <body>
         <Providers>
           <div className="bg-gray-900 min-h-screen">
-            <header className="bg-gray-800 p-4 shadow-md">
-              <div className="max-w-6xl mx-auto flex justify-between items-center">
-                <a href="/" className="text-white text-2xl font-bold flex items-center">
-                  <span className="mr-2">🎬</span> CineReco
-                </a>
-              </div>
-            </header>
+            <Header />
             
-            <main className="min-h-screen">
+            <main className="min-h-screen pt-16">
               {children}
             </main>
             
